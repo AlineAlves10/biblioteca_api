@@ -1,8 +1,12 @@
 package com.example.biblioteca.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Setter
+@Getter
 public class Usuario {
 
     @Id
@@ -11,7 +15,4 @@ public class Usuario {
 
     private String nome;
     private String email;
-
-    @OneToMany
-    private Emprestimo emprestimo;
 }
