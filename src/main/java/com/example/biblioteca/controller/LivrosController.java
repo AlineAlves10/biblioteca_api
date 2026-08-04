@@ -12,10 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-
-import static org.springframework.http.HttpStatus.OK;
-
 
 @RestController
 @RequestMapping("/v1/livros")
@@ -48,20 +44,23 @@ public class LivrosController {
     public ResponseEntity<Void> deletarLivro(@PathVariable Integer id){
            service.deletarLivro(id);
 
-        return new ResponseEntity<>(OK);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<List<Livro>> buscarLivros(){
+    public ResponseEntity<List<LivroResponse>> buscarLivros(){
         List<Livro> livro = service.buscarTodos();
 
-        return ResponseEntity.ok().body(livro);
+        final var resposta = mapper.toResponseList(livro);
+
+        return ResponseEntity.ok().body(resposta);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Livro>> buscarLivro(@PathVariable Integer id){
-        Optional<Livro> livro = service.buscarPorId(id);
-
-        return ResponseEntity.ok().body(livro);
+    public ResponseEntity<LivroResponse> buscarLivro(@PathVariable Integer id){
+        return service.buscarPorId(id)
+                .map(mapper::toResponse)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

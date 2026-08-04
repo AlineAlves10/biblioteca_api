@@ -1,16 +1,14 @@
 package com.example.biblioteca.controller;
 
+import com.example.biblioteca.dtos.usuarioDtos.UsuarioRequest;
+import com.example.biblioteca.dtos.usuarioDtos.UsuarioResponse;
 import com.example.biblioteca.entities.Usuario;
+import com.example.biblioteca.mappers.UsuarioMapper;
 import com.example.biblioteca.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
-
-import static org.springframework.http.HttpStatus.OK;
-
 
 @RestController
 @RequestMapping("/v1/usuarios")
@@ -18,36 +16,39 @@ import static org.springframework.http.HttpStatus.OK;
 public class UsuarioController {
 
     private final UsuarioService service;
+    private final UsuarioMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Void> salvarUsuario(@RequestBody Usuario Usuario){
-        service.salvarUsuario(Usuario);
+    public ResponseEntity<Void> salvarUsuario(@RequestBody UsuarioRequest usuario){
+        final var request = mapper.toEntity(usuario);
+        service.salvarUsuario(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @RequestMapping("/{id}")
-    @PutMapping
-    public ResponseEntity<Usuario> atualizarUsuario(@RequestBody Usuario usuario,
-                                               @PathVariable Integer id){
-        Usuario UsuarioAtualizado = service.atualizarUsuario(usuario, id);
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioResponse> atualizarUsuario(@RequestBody UsuarioRequest usuario,
+                                                            @PathVariable Integer id){
+        final var request = mapper.toEntity(usuario);
+        Usuario UsuarioAtualizado = service.atualizarUsuario(request, id);
 
-        return ResponseEntity.ok().body(UsuarioAtualizado);
+        final var response = mapper.toDto(UsuarioAtualizado);
+
+        return ResponseEntity.ok().body(response);
     }
 
-    @RequestMapping("/{id}")
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarUsuario(@PathVariable Integer id){
            service.deletarUsuario(id);
 
-        return new ResponseEntity<>(OK);
+        return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping("/{id}")
-    @GetMapping
-    public ResponseEntity<Optional<Usuario>> buscarUsuario(@PathVariable Integer id){
-        Optional<Usuario> Usuario = service.verUsuario(id);
-
-        return ResponseEntity.ok().body(Usuario);
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponse> buscarUsuario(@PathVariable Integer id){
+        return service.verUsuario(id)
+                .map(mapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
