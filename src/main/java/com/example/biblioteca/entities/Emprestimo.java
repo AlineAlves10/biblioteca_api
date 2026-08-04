@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -15,9 +15,9 @@ public class Emprestimo {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    private Date dataEmprestimo;
-    private Date dataDevolucao;
-    private Date dataDevolucaoPrevista;
+    private LocalDate dataEmprestimo;
+    private LocalDate dataDevolucao;
+    private LocalDate dataDevolucaoPrevista;
     private String status;
 
     @ManyToOne

@@ -1,16 +1,14 @@
 package com.example.biblioteca.controller;
 
+import com.example.biblioteca.dtos.emprestimoDtos.EmprestimoRequest;
+import com.example.biblioteca.dtos.emprestimoDtos.EmprestimoResponse;
 import com.example.biblioteca.entities.Emprestimo;
+import com.example.biblioteca.mappers.EmprestimoMapper;
 import com.example.biblioteca.service.EmprestimoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
-
-import static org.springframework.http.HttpStatus.OK;
-
 
 @RestController
 @RequestMapping("/v1/Emprestimos")
@@ -18,37 +16,41 @@ import static org.springframework.http.HttpStatus.OK;
 public class EmprestimoController {
 
     private final EmprestimoService service;
+    private final EmprestimoMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Void> salvarEmprestimo(@RequestBody Emprestimo Emprestimo){
-        service.salvarEmprestimo(Emprestimo);
+    public ResponseEntity<Void> salvarEmprestimo(@RequestBody EmprestimoRequest emprestimo){
+
+        final var request = mapper.toEntity(emprestimo);
+        service.salvarEmprestimo(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @RequestMapping("/{id}")
-    @PutMapping
-    public ResponseEntity<Emprestimo> atualizarEmprestimo(@RequestBody Emprestimo emprestimo,
+    @PutMapping("/{id}")
+    public ResponseEntity<EmprestimoResponse> atualizarEmprestimo(@RequestBody EmprestimoRequest emprestimo,
                                                @PathVariable Integer id){
-        Emprestimo EmprestimoAtualizado = service.atualizarEmprestimo(emprestimo, id);
+        final var request = mapper.toEntity(emprestimo);
+        Emprestimo emprestimoAtualizado = service.atualizarEmprestimo(request, id);
 
-        return ResponseEntity.ok().body(EmprestimoAtualizado);
+        final var response = mapper.toResponse(emprestimoAtualizado);
+
+        return ResponseEntity.ok().body(response);
     }
 
-    @RequestMapping("/{id}")
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarEmprestimo(@PathVariable Integer id){
            service.deletarEmprestimo(id);
 
-        return new ResponseEntity<>(OK);
+        return ResponseEntity.noContent().build();
     }
 
 
-    @RequestMapping("/{id}")
-    @GetMapping
-    public ResponseEntity<Optional<Emprestimo>> buscarEmprestimo(@PathVariable Integer id){
-        Optional<Emprestimo> Emprestimo = service.verEmprestimo(id);
-
-        return ResponseEntity.ok().body(Emprestimo);
+    @GetMapping("/{id}")
+    public ResponseEntity<EmprestimoResponse> buscarEmprestimo(@PathVariable Integer id){
+        return service.verEmprestimo(id)
+                .map(mapper::toResponse)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
