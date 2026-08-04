@@ -29,8 +29,8 @@ public class LivroService {
         repository.deleteById(id);
     }
 
-    public Livro salvarLivro(Livro livro){
-        return repository.save(livro);
+    public void salvarLivro(Livro livro){
+        repository.save(livro);
     }
 
     public List<Livro> buscarTodos(){
