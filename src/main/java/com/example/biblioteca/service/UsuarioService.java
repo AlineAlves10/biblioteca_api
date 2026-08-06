@@ -19,11 +19,11 @@ public class UsuarioService {
     }
 
     //atualizar
-    public Usuario atualizarUsuario(Usuario Usuario, Integer id){
+    public Usuario atualizarUsuario(String email, Integer id){
         return repository.findById(id)
-                .map(nEmail -> {
-                    nEmail.setEmail(Usuario.getEmail());
-                    return repository.save(nEmail);
+                .map(usuarioExistente -> {
+                    usuarioExistente.setEmail(email);
+                    return repository.save(usuarioExistente);
                 }).orElseThrow();
     }
 

@@ -27,12 +27,12 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> atualizarUsuario(@RequestBody UsuarioRequest usuario,
+    public ResponseEntity<UsuarioResponse> atualizarUsuario(@RequestParam String email,
                                                             @PathVariable Integer id){
-        final var request = mapper.toEntity(usuario);
-        Usuario UsuarioAtualizado = service.atualizarUsuario(request, id);
 
-        final var response = mapper.toDto(UsuarioAtualizado);
+        Usuario usuarioAtualizado = service.atualizarUsuario(email, id);
+
+        final var response = mapper.toDto(usuarioAtualizado);
 
         return ResponseEntity.ok().body(response);
     }

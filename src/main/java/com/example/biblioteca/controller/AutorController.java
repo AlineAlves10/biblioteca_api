@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/Autores")
+@RequestMapping("/v1/autores")
 @RequiredArgsConstructor
 public class AutorController {
 
@@ -27,15 +27,14 @@ public class AutorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AutorResponse> atualizarAutor(@RequestBody AutorRequest autor,
-                                                        @PathVariable Integer id){
+    public ResponseEntity<AutorResponse> atualizarNacionalidade(@RequestParam String nacionalidade,
+                                                                @PathVariable Integer id) {
 
-        final var request = mapper.toEntity(autor);
-        Autor autorAtualizado = service.atualizar(request, id);
+        Autor autorAtualizado = service.atualizar(nacionalidade, id);
 
-        final var response = mapper.toResponse(autorAtualizado);
+        AutorResponse response = mapper.toResponse(autorAtualizado);
 
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

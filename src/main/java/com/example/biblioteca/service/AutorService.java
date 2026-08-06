@@ -29,11 +29,12 @@ public class AutorService {
     }
 
     //atualizar
-    public Autor atualizar(Autor autor, Integer id){
+    public Autor atualizar(String nacionalidade, Integer id) {
         return repository.findById(id)
-                .map(autorNovo -> {
-                    autorNovo.setNacionalidade(autor.getNacionalidade());
-                    return repository.save(autorNovo);
-                }).orElseThrow();
+                .map(autorExistente -> {
+                    autorExistente.setNacionalidade(nacionalidade);
+                    return repository.save(autorExistente);
+                })
+                .orElseThrow();
     }
 }

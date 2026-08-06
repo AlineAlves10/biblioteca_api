@@ -19,12 +19,18 @@ public class EmprestimoService {
     }
 
     //atualizar
-    public Emprestimo atualizarEmprestimo(Emprestimo emprestimo, Integer id){
+    public Emprestimo atualizarEmprestimo(Emprestimo emprestimo, Integer id) {
         return repository.findById(id)
-                .map(nDataDevolucao -> {
-                    nDataDevolucao.setDataEmprestimo(emprestimo.getDataEmprestimo());
-                    return repository.save(nDataDevolucao);
-                }).orElseThrow();
+                .map(emprestimoExistente -> {
+
+                    emprestimoExistente.setDataEmprestimo(emprestimo.getDataEmprestimo());
+                    emprestimoExistente.setDataDevolucao(emprestimo.getDataDevolucao());
+                    emprestimoExistente.setLivro(emprestimo.getLivro());
+                    emprestimoExistente.setUsuario(emprestimo.getUsuario());
+
+                    return repository.save(emprestimoExistente);
+                })
+                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado."));
     }
 
     //deletar
