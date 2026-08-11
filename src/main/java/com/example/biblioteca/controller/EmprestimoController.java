@@ -10,8 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
-@RequestMapping("/v1/Emprestimos")
+@RequestMapping("/v1/emprestimos")
 @RequiredArgsConstructor
 public class EmprestimoController {
 
@@ -19,10 +21,11 @@ public class EmprestimoController {
     private final EmprestimoMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Void> salvarEmprestimo(@RequestBody EmprestimoRequest emprestimo){
+    public ResponseEntity<EmprestimoResponse> realizarEmprestimo(@RequestParam Integer livroId,
+                                                                 @RequestParam Integer usuarioId,
+                                                                 @RequestParam LocalDate dataDevolucaoPrevista){
 
-        final var request = mapper.toEntity(emprestimo);
-        service.salvarEmprestimo(request);
+        service.realizarEmprestimo(livroId, usuarioId, dataDevolucaoPrevista);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
