@@ -48,19 +48,45 @@ public class LivrosController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LivroResponse>> buscarLivros(){
-        List<Livro> livro = service.buscarTodos();
+    public ResponseEntity<List<LivroResponse>> buscarLivros(
+            @RequestParam(required = false) Boolean disponivel) {
 
-        final var resposta = mapper.toResponseList(livro);
+        List<Livro> livros;
 
-        return ResponseEntity.ok().body(resposta);
+        if (disponivel != null && disponivel) {
+            livros = service.buscarSeDisponivel();
+        } else {
+            livros = service.buscarTodos();
+        }
+
+        return ResponseEntity.ok(mapper.toResponseList(livros));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<LivroResponse> buscarLivro(@PathVariable Integer id){
-        return service.buscarPorId(id)
-                .map(mapper::toResponse)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Livro livro = service.buscarPorId(id);
+
+        return ResponseEntity.ok(mapper.toResponse(livro));
     }
+
+    @GetMapping
+    public ResponseEntity<List<LivroResponse>> buscarPorTitulo(@RequestParam String titulo){
+        var livro = service.buscarLivroPorTitulo(titulo);
+
+        return ResponseEntity.ok(mapper.toResponseList(livro));
+
+    }
+
+    @GetMapping
+    public ResponseEntity<List<LivroResponse>> buscarPorAno(@RequestParam Integer ano){
+        var anu = service.buscarPorAno(ano);
+        return ResponseEntity.ok(mapper.toResponseList(anu));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<LivroResponse>> buscarPorAutor(@RequestParam String nomeAutor){
+        var nome = service.buscarPorAutor(nomeAutor);
+        return ResponseEntity.ok(mapper.toResponseList(nome));
+    }
+
 }

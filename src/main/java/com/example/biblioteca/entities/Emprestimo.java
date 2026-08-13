@@ -1,5 +1,6 @@
 package com.example.biblioteca.entities;
 
+import com.example.biblioteca.Enum.StatusEmprestimo;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +19,9 @@ public class Emprestimo {
     private LocalDate dataEmprestimo;
     private LocalDate dataDevolucao;
     private LocalDate dataDevolucaoPrevista;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private StatusEmprestimo status;
 
     @ManyToOne
     private Livro livro;

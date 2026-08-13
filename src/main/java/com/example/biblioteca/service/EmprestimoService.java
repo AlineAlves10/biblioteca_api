@@ -1,12 +1,10 @@
 package com.example.biblioteca.service;
 
+import com.example.biblioteca.Enum.StatusEmprestimo;
 import com.example.biblioteca.entities.Emprestimo;
 import com.example.biblioteca.entities.Livro;
 import com.example.biblioteca.entities.Usuario;
-import com.example.biblioteca.exceptions.EmprestimoNaoEncontradoException;
-import com.example.biblioteca.exceptions.LivroIndisponivelException;
-import com.example.biblioteca.exceptions.LivroNaoEncontradoException;
-import com.example.biblioteca.exceptions.UsuarioNaoEncontradoException;
+import com.example.biblioteca.exceptions.*;
 import com.example.biblioteca.repository.EmprestimoRepository;
 import com.example.biblioteca.repository.LivroRepository;
 import com.example.biblioteca.repository.UsuarioRepository;
@@ -41,7 +39,7 @@ public class EmprestimoService {
 
                     return repository.save(emprestimoExistente);
                 })
-                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado."));
+                .orElseThrow(() -> new EmprestimoNaoEncontradoException("Empréstimo não encontrado."));
     }
 
     //deletar
@@ -79,7 +77,7 @@ public class EmprestimoService {
         emprestimo.setUsuario(usu);
         emprestimo.setDataEmprestimo(LocalDate.now());
         emprestimo.setDataDevolucao(dataDevolucaoPrevista);
-        emprestimo.setStatus("EMPRESTADO");
+        emprestimo.setStatus(StatusEmprestimo.EMPRESTADO);
 
         return salvarEmprestimo(emprestimo);
 
@@ -91,15 +89,15 @@ public class EmprestimoService {
         Emprestimo emprestimo = repository.findById(emprestimoId)
                 .orElseThrow(() -> new EmprestimoNaoEncontradoException("emprestimo nao encontrato"));
 
-        if("DEVOLVIDO".equals(emprestimo.getStatus())) {
-            throw new RuntimeException("Este empréstimo já foi devolvido");
+        if(StatusEmprestimo.DEVOLVIDO.equals(emprestimo.getStatus())) {
+            throw new EmprestimoJaDevolvidoException("Este empréstimo já foi devolvido");
         }
 
         Livro livro = emprestimo.getLivro();
         livro.setQuantidade(livro.getQuantidade() + 1);
 
         emprestimo.setDataDevolucao(LocalDate.now());
-        emprestimo.setStatus("DEVOLVIDO");
+        emprestimo.setStatus(StatusEmprestimo.DEVOLVIDO);
 
         return salvarEmprestimo(emprestimo);
     }

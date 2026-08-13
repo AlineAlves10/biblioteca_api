@@ -46,9 +46,9 @@ public class AutorController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AutorResponse> buscarAutor(@PathVariable Integer id){
-        return service.verAutor(id)
-                .map(mapper::toResponse)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        var autor = service.verAutor(id);
+
+        return ResponseEntity.ok(mapper.toResponse(autor));
+
     }
 }

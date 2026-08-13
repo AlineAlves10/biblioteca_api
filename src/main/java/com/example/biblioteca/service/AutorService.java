@@ -1,6 +1,8 @@
 package com.example.biblioteca.service;
 
 import com.example.biblioteca.entities.Autor;
+import com.example.biblioteca.exceptions.AutorNaoEncontradoException;
+import com.example.biblioteca.exceptions.LivroNaoEncontradoException;
 import com.example.biblioteca.repository.AutorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,8 +26,9 @@ public class AutorService {
     }
 
     //ler
-    public Optional<Autor> verAutor(Integer id){
-        return repository.findById(id);
+    public Autor verAutor(Integer id){
+        return repository.findById(id)
+                .orElseThrow(() -> new AutorNaoEncontradoException("Autor nao encontrato"));
     }
 
     //atualizar
@@ -35,6 +38,6 @@ public class AutorService {
                     autorExistente.setNacionalidade(nacionalidade);
                     return repository.save(autorExistente);
                 })
-                .orElseThrow();
+                .orElseThrow(() -> new AutorNaoEncontradoException("Autor nao encontrado"));
     }
 }
