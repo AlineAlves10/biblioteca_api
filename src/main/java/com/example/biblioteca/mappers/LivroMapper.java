@@ -17,6 +17,4 @@ public interface LivroMapper {
 
     @Mapping(source = "autor.id", target = "autorId")
     LivroResponse toResponse(Livro livro);
-
-    List<LivroResponse> toResponseList(List<Livro> livro);
 }

@@ -1,6 +1,8 @@
 package com.example.biblioteca.repository;
 
 import com.example.biblioteca.entities.Livro;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,5 +22,5 @@ public interface LivroRepository extends JpaRepository<Livro, Integer>, JpaSpeci
         WHERE e.livro = l
           AND e.status = 'EMPRESTADO')
     """)
-    List<Livro> livroDisponivel();
+    Page<Livro> livroDisponivel(Pageable page);
 }

@@ -1,5 +1,6 @@
 package com.example.biblioteca.controller;
 
+import com.example.biblioteca.dtos.PageResponse;
 import com.example.biblioteca.dtos.livroDtos.LivroRequest;
 import com.example.biblioteca.dtos.livroDtos.LivroResponse;
 import com.example.biblioteca.entities.Livro;
@@ -7,6 +8,8 @@ import com.example.biblioteca.mappers.LivroMapper;
 import com.example.biblioteca.service.LivroService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,18 +51,32 @@ public class LivrosController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LivroResponse>> buscarLivros(
-            @RequestParam(required = false) Boolean disponivel) {
+    public ResponseEntity<PageResponse<LivroResponse>> buscarLivros(Pageable page,
+                                                                    @RequestParam(required = false) Boolean disponivel,
+                                                                    @RequestParam(required = false) Integer ano,
+                                                                    @RequestParam(required = false) String nomeAutor,
+                                                                    @RequestParam(required = false) String titulo) {
 
-        List<Livro> livros;
+        Page<Livro> livros;
 
         if (disponivel != null && disponivel) {
-            livros = service.buscarSeDisponivel();
+            livros = service.buscarSeDisponivel(page);
         } else {
-            livros = service.buscarTodos();
+            livros = service.buscarTodos(page,nomeAutor, ano, titulo);
         }
 
-        return ResponseEntity.ok(mapper.toResponseList(livros));
+        Page<LivroResponse> responsePage =
+                livros.map(mapper::toResponse);
+
+        PageResponse<LivroResponse> response = new PageResponse<>(
+                responsePage.getContent(),
+                responsePage.getNumber(),
+                responsePage.getSize(),
+                responsePage.getTotalElements(),
+                responsePage.getTotalPages()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
@@ -68,25 +85,4 @@ public class LivrosController {
 
         return ResponseEntity.ok(mapper.toResponse(livro));
     }
-
-    @GetMapping
-    public ResponseEntity<List<LivroResponse>> buscarPorTitulo(@RequestParam String titulo){
-        var livro = service.buscarLivroPorTitulo(titulo);
-
-        return ResponseEntity.ok(mapper.toResponseList(livro));
-
-    }
-
-    @GetMapping
-    public ResponseEntity<List<LivroResponse>> buscarPorAno(@RequestParam Integer ano){
-        var anu = service.buscarPorAno(ano);
-        return ResponseEntity.ok(mapper.toResponseList(anu));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<LivroResponse>> buscarPorAutor(@RequestParam String nomeAutor){
-        var nome = service.buscarPorAutor(nomeAutor);
-        return ResponseEntity.ok(mapper.toResponseList(nome));
-    }
-
 }

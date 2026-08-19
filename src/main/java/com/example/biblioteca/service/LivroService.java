@@ -6,11 +6,12 @@ import com.example.biblioteca.exceptions.LivroNaoEncontradoException;
 import com.example.biblioteca.repository.LivroRepository;
 import com.example.biblioteca.repository.specification.LivroSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,8 +45,35 @@ public class LivroService {
         repository.save(livro);
     }
 
-    public List<Livro> buscarTodos(){
-        return repository.findAll();
+    public Page<Livro> buscarTodos(Pageable pageable,
+                                   String nomeAutor,
+                                   Integer ano,
+                                   String titulo){
+
+        Specification<Livro> spec = null;
+
+        if(nomeAutor!= null){
+            spec = livroSpecification.autorContem(nomeAutor);
+        }
+        if(ano!= null){
+            if(spec!= null){
+                spec = spec.and(livroSpecification.anoIgual(ano));
+            }
+            else{
+                spec = livroSpecification.anoIgual(ano);
+            }
+        }
+        if(titulo!= null){
+            if(spec!= null){
+                spec = spec.and(livroSpecification.searchLivroByTitulo(titulo));
+            }
+            else{
+                spec = livroSpecification.searchLivroByTitulo(titulo);
+            }
+        }
+
+
+        return repository.findAll(spec, pageable);
     }
 
     public Livro buscarPorId(Integer id){
@@ -53,28 +81,7 @@ public class LivroService {
                 .orElseThrow(() -> new LivroNaoEncontradoException("livro nao encontrado"));
     }
 
-    public List<Livro> buscarLivroPorTitulo(String titulo){
-        Specification<Livro> spec =
-                livroSpecification.searchLivroByTitulo(titulo);
-
-        return repository.findAll(spec);
-    }
-
-    public List<Livro> buscarPorAno(Integer ano){
-        Specification<Livro> spec =
-                livroSpecification.anoIgual(ano);
-
-        return repository.findAll(spec);
-    }
-
-    public List<Livro> buscarPorAutor(String nomeAutor){
-        Specification<Livro> spec =
-                livroSpecification.autorContem(nomeAutor);
-
-        return repository.findAll(spec);
-    }
-
-    public List<Livro> buscarSeDisponivel() {
-        return repository.livroDisponivel();
+    public Page<Livro> buscarSeDisponivel(Pageable page) {
+        return repository.livroDisponivel(page);
     }
 }
