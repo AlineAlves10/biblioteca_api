@@ -5,6 +5,8 @@ import com.example.biblioteca.dtos.usuarioDtos.UsuarioResponse;
 import com.example.biblioteca.entities.Usuario;
 import com.example.biblioteca.mappers.UsuarioMapper;
 import com.example.biblioteca.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/usuarios")
 @RequiredArgsConstructor
+@Tag(name = "Usuario", description = "Gerenciador de Usuario")
 public class UsuarioController {
 
     private final UsuarioService service;
     private final UsuarioMapper mapper;
 
     @PostMapping
+    @Operation(summary = "Cadastrar novo Usuario", description = "Faz o cadastro de novo usuario no banco")
     public ResponseEntity<Void> salvarUsuario(@RequestBody UsuarioRequest usuario){
         final var request = mapper.toEntity(usuario);
         service.salvarUsuario(request);
@@ -27,6 +31,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Atualiza Uuario", description = "Atualiza usuario pre existente")
     public ResponseEntity<UsuarioResponse> atualizarUsuario(@RequestParam String email,
                                                             @PathVariable Integer id){
 
@@ -38,6 +43,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Deletar Usuario", description = "Deleta usuario no banco")
     public ResponseEntity<Void> deletarUsuario(@PathVariable Integer id){
            service.deletarUsuario(id);
 
@@ -45,6 +51,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Buscar Usuario", description = "Faz a busca de um usuario por seu id")
     public ResponseEntity<UsuarioResponse> buscarUsuario(@PathVariable Integer id){
         return service.verUsuario(id)
                 .map(mapper::toDto)
